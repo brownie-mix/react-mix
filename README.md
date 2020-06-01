@@ -60,7 +60,7 @@ http://localhost:8545
 ```
 Any changes to the contracts from the console should show on the website after a refresh, and vice versa.
 
-4. Ending a session
+5. Ending a session
 
 As soon as you close the brownie console, the ganache instance will shut down and the deployment artifacts will be deleted.
 
