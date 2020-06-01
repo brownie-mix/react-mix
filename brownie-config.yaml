@@ -1,8 +1,13 @@
+# change the build directory to be within react's scope
 project_structure:
     build: client/src/artifacts
+
+# set a custom mnemonic for the development network
 networks:
   default: development
   development:
     cmd_settings:
       mnemonic: hill law jazz limb penalty escape public dish stand bracket blue jar
+
+# enable output of development artifacts to load with react
 dev_deployment_artifacts: true

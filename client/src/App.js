@@ -1,7 +1,7 @@
 import React, {Component} from "react"
 import './App.css'
 import {getWeb3} from "./getWeb3"
-import map from "./build/deployments/map.json"
+import map from "./artifacts/deployments/map.json"
 
 class App extends Component {
 
@@ -59,9 +59,9 @@ class App extends Component {
         }
 
         let contractArtifact
-        let fileName = "./build/deployments/" + chain + "/" + address + ".json"
+        let fileName = "./artifacts/deployments/" + chain + "/" + address + ".json"
         try {
-            contractArtifact = await import("./build/deployments/" + chain + "/" + address + ".json")
+            contractArtifact = await import("./artifacts/deployments/" + chain + "/" + address + ".json")
         } catch (e) {
             console.log(`Failed to load contract artifact "${fileName}.`)
             return undefined
@@ -119,7 +119,7 @@ class App extends Component {
             <h1>Your Brownie Mix is installed and ready.</h1>
             <p>
                 If your contracts compiled and deployed successfully, you can see the current
-                storage value below.
+                storage values below.
             </p>
             <h2>Vyper Storage Contract</h2>
 

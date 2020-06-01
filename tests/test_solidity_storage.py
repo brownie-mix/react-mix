@@ -3,7 +3,7 @@ def test_solidity_storage_deploy(solidity_storage):
     """
     Test if the contract is correctly deployed.
     """
-    assert solidity_storage.get() == 0
+    assert solidity_storage.get() == 5
 
 
 def test_solidity_storage_set(accounts, solidity_storage):
