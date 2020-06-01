@@ -69,12 +69,12 @@ To retain your deployment artifacts (and their functionality), run a ganache ins
 After closing the console, the chain and the deployment artifacts will persist.
 
 ## Further Possibilities
-1. From a fresh terminal, run the brownie tests
+#### From a fresh terminal, run the brownie tests
 ```bash
 brownie test
 ```
 
-2. Deploying on live networks
+#### Deploying on live networks
 
 Change the `scripts/deploy.py` script to [use funded accounts](https://eth-brownie.readthedocs.io/en/stable/account-management.html).
 
@@ -89,7 +89,7 @@ For contracts deployed on a live network (main net or any official test net), th
 * Delete or rename the contract file or
 * Manually remove the `client/src/artifacts/` directory
 
- 3. Explore smart contract development with Brownie
+#### Explore smart contract development with Brownie
  
  * [Try out other mixes](https://github.com/brownie-mix/)
  * [Read the documentation](https://eth-brownie.readthedocs.io/en/stable/)
