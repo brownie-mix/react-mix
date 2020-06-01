@@ -40,8 +40,19 @@ brownie console
 cd client
 yarn start
 ```
+3. Connect your metamask to the local ganache network
 
-3. Interact with the smart contract via the web interface or via the brownie console
+Select `Localhost 8545` from the network dropdown
+
+or
+
+```
+New Custom RPC
+http://localhost:8545 
+```
+
+
+4. Interact with the smart contract via the web interface or via the brownie console
 ```bash
 ## In the brownie console
 >>> vyper_storage = VyperStorage[-1]  # get the newest vyper storage contract
