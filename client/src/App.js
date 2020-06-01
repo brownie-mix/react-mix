@@ -2,6 +2,7 @@ import React, {Component} from "react"
 import './App.css'
 import {getWeb3} from "./getWeb3"
 import map from "./artifacts/deployments/map.json"
+import {getEthereum} from "./getEthereum"
 
 class App extends Component {
 
@@ -20,6 +21,10 @@ class App extends Component {
 
         // Get network provider and web3 instance.
         const web3 = await getWeb3()
+
+        // Enable accounts
+        const ethereum = await getEthereum()
+        ethereum.enable()
 
         // Use web3 to get the user's accounts.
         const accounts = await web3.eth.getAccounts()
