@@ -48,7 +48,10 @@ class App extends Component {
         const solidityValue = await solidityStorage.methods.get().call()
 
         this.setState({
-            vyperStorage, vyperValue, solidityStorage, solidityValue
+            vyperStorage,
+            vyperValue,
+            solidityStorage,
+            solidityValue,
         })
     }
 
@@ -64,11 +67,10 @@ class App extends Component {
         }
 
         let contractArtifact
-        let fileName = "./artifacts/deployments/" + chain + "/" + address + ".json"
         try {
-            contractArtifact = await import("./artifacts/deployments/" + chain + "/" + address + ".json")
+            contractArtifact = await import(`./artifacts/deployments/${chain}/${address}.json`)
         } catch (e) {
-            console.log(`Failed to load contract artifact "${fileName}.`)
+            console.log(`Failed to load contract artifact "./artifacts/deployments/${chain}/${address}.json"`)
             return undefined
         }
 
