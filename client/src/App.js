@@ -9,6 +9,7 @@ class App extends Component {
     state = {
         web3: null,
         accounts: null,
+        chainid: null,
         vyperStorage: null,
         vyperValue: 0,
         vyperInput: 0,
@@ -22,21 +23,36 @@ class App extends Component {
         // Get network provider and web3 instance.
         const web3 = await getWeb3()
 
-        // Enable accounts
-        const ethereum = await getEthereum()
-        ethereum.enable()
+        // Try and enable accounts (connect metamask)
+        try {
+            const ethereum = await getEthereum()
+            ethereum.enable()
+        } catch (e) {
+            console.log(`Could not enable accounts. Interaction with contracts not available.
+            Use a modern browser with a Web3 plugin to fix this issue.`)
+            console.log(e)
+        }
 
-        // Use web3 to get the user's accounts.
+        // Use web3 to get the user's accounts
         const accounts = await web3.eth.getAccounts()
+
+        // Get the current chain id
+        const chainid = parseInt(await web3.eth.getChainId())
 
         this.setState({
             web3,
             accounts,
+            chainid
         }, await this.loadInitialContracts)
 
     }
 
     loadInitialContracts = async () => {
+        if (this.state.chainid <= 42) {
+            // Wrong Network!
+            return
+        }
+
         const vyperStorage = await this.loadContract("dev", "VyperStorage")
         const solidityStorage = await this.loadContract("dev", "SolidityStorage")
 
@@ -56,8 +72,10 @@ class App extends Component {
     }
 
     loadContract = async (chain, contractName) => {
-        // Load a contract instance.
+        // Load a deployed contract instance into a web3 contract object
         const {web3} = this.state
+
+        // Get the address of the most recent deployment from the deployment map
         let address
         try {
             address = map[chain][contractName][0]
@@ -66,6 +84,7 @@ class App extends Component {
             return undefined
         }
 
+        // Load the artifact with the specified address
         let contractArtifact
         try {
             contractArtifact = await import(`./artifacts/deployments/${chain}/${address}.json`)
@@ -110,10 +129,18 @@ class App extends Component {
     }
 
     render() {
-        const {web3, accounts, vyperStorage, vyperValue, vyperInput, solidityStorage, solidityValue, solidityInput} = this.state
+        const {
+            web3, accounts, chainid,
+            vyperStorage, vyperValue, vyperInput,
+            solidityStorage, solidityValue, solidityInput
+        } = this.state
 
         if (!web3) {
             return <div>Loading Web3, accounts, and contracts...</div>
+        }
+
+        if (isNaN(chainid) || chainid <= 42) {
+            return <div>Wrong Network! Switch to your local RPC "Localhost: 8545" in your Web3 provider (e.g. Metamask)</div>
         }
 
         if (!vyperStorage || !solidityStorage) {
@@ -130,7 +157,7 @@ class App extends Component {
             </p>
             {
                 !isMetamaskConnected ?
-                    <p><strong>Connect with metamask and refresh the page to
+                    <p><strong>Connect with Metamask and refresh the page to
                         be able to edit the storage fields.</strong>
                     </p>
                     : null
