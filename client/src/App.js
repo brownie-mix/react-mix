@@ -115,19 +115,26 @@ class App extends Component {
         if (!web3) {
             return <div>Loading Web3, accounts, and contracts...</div>
         }
-        if (accounts.length === 0) {
-            return <div>Could not find any accounts in your wallet.
-                Make sure you are connected and logged in with a provider such as metamask.</div>
-        }
+
         if (!vyperStorage || !solidityStorage) {
             return <div>Could not find a deployed contract. Check console for details.</div>
         }
+
+        const isMetamaskConnected = accounts ? accounts.length > 0 : false
+
         return (<div className="App">
             <h1>Your Brownie Mix is installed and ready.</h1>
             <p>
                 If your contracts compiled and deployed successfully, you can see the current
                 storage values below.
             </p>
+            {
+                !isMetamaskConnected ?
+                    <p><strong>Connect with metamask and refresh the page to
+                        be able to edit the storage fields.</strong>
+                    </p>
+                    : null
+            }
             <h2>Vyper Storage Contract</h2>
 
             <div>The stored value is: {vyperValue}</div>
@@ -143,7 +150,7 @@ class App extends Component {
                         onChange={(e) => this.setState({vyperInput: e.target.value})}
                     />
                     <br/>
-                    <button type="submit">Submit</button>
+                    <button type="submit" disabled={!isMetamaskConnected}>Submit</button>
                 </div>
             </form>
 
@@ -161,7 +168,8 @@ class App extends Component {
                         onChange={(e) => this.setState({solidityInput: e.target.value})}
                     />
                     <br/>
-                    <button type="submit">Submit</button>
+                    <button type="submit" disabled={!isMetamaskConnected}>Submit</button>
+
                 </div>
             </form>
         </div>)

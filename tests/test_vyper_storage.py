@@ -8,7 +8,7 @@ def test_vyper_storage_deploy(vyper_storage):
 
 def test_vyper_storage_set(accounts, vyper_storage):
     """
-    Test if the sotrage variable can be changed.
+    Test if the storage variable can be changed.
     """
     vyper_storage.set(30, {'from': accounts[0]})
     assert vyper_storage.get() == 30
