@@ -147,7 +147,7 @@ class App extends Component {
             return <div>Could not find a deployed contract. Check console for details.</div>
         }
 
-        const isMetamaskConnected = accounts ? accounts.length > 0 : false
+        const isAccountsUnlocked = accounts ? accounts.length > 0 : false
 
         return (<div className="App">
             <h1>Your Brownie Mix is installed and ready.</h1>
@@ -156,7 +156,7 @@ class App extends Component {
                 storage values below.
             </p>
             {
-                !isMetamaskConnected ?
+                !isAccountsUnlocked ?
                     <p><strong>Connect with Metamask and refresh the page to
                         be able to edit the storage fields.</strong>
                     </p>
@@ -177,7 +177,7 @@ class App extends Component {
                         onChange={(e) => this.setState({vyperInput: e.target.value})}
                     />
                     <br/>
-                    <button type="submit" disabled={!isMetamaskConnected}>Submit</button>
+                    <button type="submit" disabled={!isAccountsUnlocked}>Submit</button>
                 </div>
             </form>
 
@@ -195,7 +195,7 @@ class App extends Component {
                         onChange={(e) => this.setState({solidityInput: e.target.value})}
                     />
                     <br/>
-                    <button type="submit" disabled={!isMetamaskConnected}>Submit</button>
+                    <button type="submit" disabled={!isAccountsUnlocked}>Submit</button>
 
                 </div>
             </form>

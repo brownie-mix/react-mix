@@ -21,6 +21,6 @@ def vyper_storage(accounts, VyperStorage):
 @pytest.fixture(scope="module")
 def solidity_storage(accounts, SolidityStorage):
     """
-    Yield a `Contract` object for the Aave lending pool address provider.
+    Yield a `Contract` object for the SolidityStorage contract.
     """
     yield accounts[0].deploy(SolidityStorage)
