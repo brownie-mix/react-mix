@@ -117,7 +117,7 @@ class App extends Component {
             return
         }
         const tx = await vyperStorage.set(value)
-        tx.wait()
+        await tx.wait()
         this.setState({
             vyperValue: parseInt(await vyperStorage.get())
         })
@@ -132,7 +132,7 @@ class App extends Component {
             return
         }
         const tx = await solidityStorage.set(value)
-        tx.wait()
+        await tx.wait()
         this.setState({
             solidityValue: parseInt(await solidityStorage.get())
         })
