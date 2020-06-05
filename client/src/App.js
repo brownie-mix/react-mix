@@ -1,14 +1,15 @@
 import React, {Component} from "react"
 import './App.css'
-import {getWeb3} from "./getWeb3"
+import {ethers} from 'ethers'
 import map from "./artifacts/deployments/map.json"
 import {getEthereum} from "./getEthereum"
 
 class App extends Component {
 
     state = {
-        web3: null,
-        accounts: null,
+        provider: null,
+        signer: null,
+        isAccountsUnlocked: null,
         chainid: null,
         vyperStorage: null,
         vyperValue: 0,
@@ -19,13 +20,24 @@ class App extends Component {
     }
 
     componentDidMount = async () => {
+        // Get provider
+        const ethereum = await getEthereum()
+        const provider = new ethers.providers.Web3Provider(ethereum)
+        const signer = provider.getSigner()
 
-        // Get network provider and web3 instance.
-        const web3 = await getWeb3()
+        let isAccountsUnlocked = true
+        try {
+            await signer.getAddress()
+        } catch (e) {
+            isAccountsUnlocked = false
+        }
+
+
+        // Get chainid
+        const chainid = (await provider.getNetwork()).chainId
 
         // Try and enable accounts (connect metamask)
         try {
-            const ethereum = await getEthereum()
             ethereum.enable()
         } catch (e) {
             console.log(`Could not enable accounts. Interaction with contracts not available.
@@ -33,16 +45,11 @@ class App extends Component {
             console.log(e)
         }
 
-        // Use web3 to get the user's accounts
-        const accounts = await web3.eth.getAccounts()
-
-        // Get the current chain id
-        const chainid = parseInt(await web3.eth.getChainId())
-
         this.setState({
-            web3,
-            accounts,
-            chainid
+            provider,
+            chainid,
+            signer: signer,
+            isAccountsUnlocked
         }, await this.loadInitialContracts)
 
     }
@@ -60,8 +67,8 @@ class App extends Component {
             return
         }
 
-        const vyperValue = await vyperStorage.methods.get().call()
-        const solidityValue = await solidityStorage.methods.get().call()
+        const vyperValue = parseInt(await vyperStorage.get())
+        const solidityValue = parseInt(await solidityStorage.get())
 
         this.setState({
             vyperStorage,
@@ -73,7 +80,7 @@ class App extends Component {
 
     loadContract = async (chain, contractName) => {
         // Load a deployed contract instance into a web3 contract object
-        const {web3} = this.state
+        const {provider, isAccountsUnlocked, signer} = this.state
 
         // Get the address of the most recent deployment from the deployment map
         let address
@@ -93,113 +100,117 @@ class App extends Component {
             return undefined
         }
 
-        return new web3.eth.Contract(contractArtifact.abi, address)
+        let contract = new ethers.Contract(address, contractArtifact.abi, provider)
+        if (isAccountsUnlocked) {
+            contract = contract.connect(signer)
+        }
+        return contract
+
     }
 
     changeVyper = async (e) => {
-        const {accounts, vyperStorage, vyperInput} = this.state
+        const {vyperStorage, vyperInput} = this.state
         e.preventDefault()
         const value = parseInt(vyperInput)
         if (isNaN(value)) {
             alert("invalid value")
             return
         }
-        await vyperStorage.methods.set(value).send({from: accounts[0]})
-            .on('receipt', async () => {
-                this.setState({
-                    vyperValue: await vyperStorage.methods.get().call()
-                })
-            })
+        const tx = await vyperStorage.set(value)
+        tx.wait()
+        this.setState({
+            vyperValue: parseInt(await vyperStorage.get())
+        })
     }
 
     changeSolidity = async (e) => {
-        const {accounts, solidityStorage, solidityInput} = this.state
+        const {solidityStorage, solidityInput} = this.state
         e.preventDefault()
         const value = parseInt(solidityInput)
         if (isNaN(value)) {
             alert("invalid value")
             return
         }
-        await solidityStorage.methods.set(value).send({from: accounts[0]})
-            .on('receipt', async () => {
-                this.setState({
-                    solidityValue: await solidityStorage.methods.get().call()
-                })
-            })
+        const tx = await solidityStorage.set(value)
+        tx.wait()
+        this.setState({
+            solidityValue: parseInt(await solidityStorage.get())
+        })
     }
 
     render() {
         const {
-            web3, accounts, chainid,
+            provider, isAccountsUnlocked, chainid,
             vyperStorage, vyperValue, vyperInput,
             solidityStorage, solidityValue, solidityInput
         } = this.state
 
-        if (!web3) {
+        if (!provider) {
             return <div>Loading Web3, accounts, and contracts...</div>
         }
 
         if (isNaN(chainid) || chainid <= 42) {
-            return <div>Wrong Network! Switch to your local RPC "Localhost: 8545" in your Web3 provider (e.g. Metamask)</div>
+            return <div>Wrong Network! Switch to your local RPC "Localhost: 8545" in your Web3
+                provider (e.g. Metamask)</div>
         }
 
         if (!vyperStorage || !solidityStorage) {
             return <div>Could not find a deployed contract. Check console for details.</div>
         }
 
-        const isAccountsUnlocked = accounts ? accounts.length > 0 : false
+        return (
+            <div className="App">
+                <h1>Your Brownie Mix is installed and ready.</h1>
+                <p>
+                    If your contracts compiled and deployed successfully, you can see the current
+                    storage values below.
+                </p>
+                {
+                    !isAccountsUnlocked ?
+                        <p><strong>Connect with Metamask and refresh the page to
+                            be able to edit the storage fields.</strong>
+                        </p>
+                        : null
+                }
+                <h2>Vyper Storage Contract</h2>
 
-        return (<div className="App">
-            <h1>Your Brownie Mix is installed and ready.</h1>
-            <p>
-                If your contracts compiled and deployed successfully, you can see the current
-                storage values below.
-            </p>
-            {
-                !isAccountsUnlocked ?
-                    <p><strong>Connect with Metamask and refresh the page to
-                        be able to edit the storage fields.</strong>
-                    </p>
-                    : null
-            }
-            <h2>Vyper Storage Contract</h2>
+                <div>The stored value is: {vyperValue}</div>
+                <br/>
+                <form onSubmit={(e) => this.changeVyper(e)}>
+                    <div>
+                        <label>Change the value to: </label>
+                        <br/>
+                        <input
+                            name="vyperInput"
+                            type="text"
+                            value={vyperInput}
+                            onChange={(e) => this.setState({vyperInput: e.target.value})}
+                        />
+                        <br/>
+                        <button type="submit" disabled={!isAccountsUnlocked}>Submit</button>
+                    </div>
+                </form>
 
-            <div>The stored value is: {vyperValue}</div>
-            <br/>
-            <form onSubmit={(e) => this.changeVyper(e)}>
-                <div>
-                    <label>Change the value to: </label>
-                    <br/>
-                    <input
-                        name="vyperInput"
-                        type="text"
-                        value={vyperInput}
-                        onChange={(e) => this.setState({vyperInput: e.target.value})}
-                    />
-                    <br/>
-                    <button type="submit" disabled={!isAccountsUnlocked}>Submit</button>
-                </div>
-            </form>
+                <h2>Solidity Storage Contract</h2>
+                <div>The stored value is: {solidityValue}</div>
+                <br/>
+                <form onSubmit={(e) => this.changeSolidity(e)}>
+                    <div>
+                        <label>Change the value to: </label>
+                        <br/>
+                        <input
+                            name="solidityInput"
+                            type="text"
+                            value={solidityInput}
+                            onChange={(e) => this.setState({solidityInput: e.target.value})}
+                        />
+                        <br/>
+                        <button type="submit" disabled={!isAccountsUnlocked}>Submit</button>
 
-            <h2>Solidity Storage Contract</h2>
-            <div>The stored value is: {solidityValue}</div>
-            <br/>
-            <form onSubmit={(e) => this.changeSolidity(e)}>
-                <div>
-                    <label>Change the value to: </label>
-                    <br/>
-                    <input
-                        name="solidityInput"
-                        type="text"
-                        value={solidityInput}
-                        onChange={(e) => this.setState({solidityInput: e.target.value})}
-                    />
-                    <br/>
-                    <button type="submit" disabled={!isAccountsUnlocked}>Submit</button>
-
-                </div>
-            </form>
-        </div>)
+                    </div>
+                </form>
+            </div>
+        )
     }
 }
 
