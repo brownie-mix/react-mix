@@ -9,6 +9,7 @@ class App extends Component {
     state = {
         web3: null,
         accounts: null,
+        balance: null,
         chainid: null,
         vyperStorage: null,
         vyperValue: 0,
@@ -36,13 +37,17 @@ class App extends Component {
         // Use web3 to get the user's accounts
         const accounts = await web3.eth.getAccounts()
 
+        const balanceWei = await web3.eth.getBalance(accounts[0]);
+        const balance = web3.utils.fromWei(balanceWei);
+
         // Get the current chain id
         const chainid = parseInt(await web3.eth.getChainId())
 
         this.setState({
             web3,
             accounts,
-            chainid
+            balance,
+            chainid,
         }, await this.loadInitialContracts)
 
     }
@@ -154,6 +159,10 @@ class App extends Component {
             <p>
                 If your contracts compiled and deployed successfully, you can see the current
                 storage values below.
+                <br></br>
+                Account: {this.state.accounts[0]}
+                <br></br>
+                Balance: {this.state.balance}
             </p>
             {
                 !isAccountsUnlocked ?
@@ -176,6 +185,7 @@ class App extends Component {
                         value={vyperInput}
                         onChange={(e) => this.setState({vyperInput: e.target.value})}
                     />
+
                     <br/>
                     <button type="submit" disabled={!isAccountsUnlocked}>Submit</button>
                 </div>
