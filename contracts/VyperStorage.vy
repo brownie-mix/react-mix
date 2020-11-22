@@ -1,14 +1,16 @@
+# @version >=0.2.7 <0.3.0
+
 stored_data: public(uint256)
 
-@public
+@external
 def __init__():
     self.stored_data = 10
 
-@public
+@external
 def set(_x: uint256):
     self.stored_data = _x
 
-@public
-@constant
+@external
+@view
 def get() -> uint256:
     return self.stored_data
