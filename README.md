@@ -19,13 +19,29 @@ This mix comes with everything you need to start using [React](https://reactjs.o
     yarn install
     ```
 
-4. In [MetaMask](https://metamask.io/) or another web3 browser extension, load the following seed phrase:
+4. If you want to be able to deploy to testnets, do the following.
+
+    Set your WEB3_INFURA_PROJECT_ID, and PRIVATE_KEY environment variables.
+
+    You can get a WEB3_INFURA_PROJECT_ID by getting a free trial of Infura. At the moment, it does need to be infura with brownie. If you get lost, you can follow this guide to getting a project key. You can find your PRIVATE_KEY from your ethereum wallet like metamask.
+
+    You'll also need testnet ETH and LINK. You can get LINK and ETH into your wallet by using the faucets located here. If you're new to this, watch this video.. Look at the rinkeby and kovan sections for those specific testnet faucets.
+
+    You can add your environment variables to a .env file. You can use the .env.exmple as a template, just fill in the values and rename it to '.env'. Then, uncomment the line # dotenv: .env in brownie-config.yaml
+
+    Here is what your .env should look like:
 
     ```bash
-    hill law jazz limb penalty escape public dish stand bracket blue jar
+    export WEB3_INFURA_PROJECT_ID=<PROJECT_ID>
+    export PRIVATE_KEY=<PRIVATE_KEY>
     ```
+   
+5. Create brownie account(s) following instructions here:
+       https://eth-brownie.readthedocs.io/en/stable/account-management.html
 
-    These accounts will automatically be funded.
+6. Import the browni account to MetaMask using their private key(s)
+
+
 
 ## Usage
 
@@ -37,6 +53,16 @@ This mix comes with everything you need to start using [React](https://reactjs.o
 
     ReactMixProject is the active project.
     Launching 'ganache-cli'...
+    Brownie environment is ready.
+    ```
+
+    Alternatively, to run on Kovan, set the network flag to kovan
+
+    ```bash
+    $ brownie console --network kovan
+    Brownie v1.14.6 - Python development framework for Ethereum
+
+    ReactMixProject is the active project.
     Brownie environment is ready.
     ```
 
@@ -58,18 +84,18 @@ This mix comes with everything you need to start using [React](https://reactjs.o
 
 3. While Brownie is still running, start the React app in a different terminal.
 
+    The first time this app is used, the node modules have to be installed in /src.
+    To do this, navigate to ./client/src and run
+
     ```bash
     # make sure to use a different terminal, not the brownie console
-    cd client
-    yarn start
+    npm install
+    npm audit fix
     ```
 
-4. Connect Metamask to the local Ganache network. In the upper right corner, click the network dropdown menu. Select `Localhost 8545`, or:
+4. Connect Metamask to the local Ganache network. In the upper right corner, click the network dropdown menu. Select `Localhost 8545`, or `Kovan test network`:
 
-    ```bash
-    New Custom RPC
-    http://localhost:8545
-    ```
+
 
 5. Interact with the smart contracts using the web interface or via the Brownie console.
 
@@ -115,6 +141,10 @@ For contracts deployed on a live network, the deployment information is stored p
 
 * Delete or rename the contract file or
 * Manually remove the `client/src/artifacts/` directory
+
+NB: to connect the react app to the Kovan testnet, also change lines 51 and 142 in App.js from chainID <=42
+to chainID < 42. This is required because Kovan's chainID is 42. The original <= option could be useful as a failsafe against accidentally deploying to a live network.
+
 
 ## Resources
 

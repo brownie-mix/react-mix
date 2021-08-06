@@ -2,12 +2,33 @@
 project_structure:
     build: client/src/artifacts
 
-# set a custom mnemonic for the development network
+      
+# automatically fetch contract sources from Etherscan
+autofetch_sources: True
+dotenv: .env
+
+
 networks:
   default: development
   development:
     cmd_settings:
-      mnemonic: hill law jazz limb penalty escape public dish stand bracket blue jar
+      mnemonic: brownie
+      default_balance: 100000000000000000000
+      unlock: <ACCOUNT ADDRESS HERE> # optionally add saved brownie account to Ganache
+      # (requires explicit transfer of eth to accounts[-1]) 
+
+    update_interval: 60
+    verify: False
+  
+  kovan:
+
+    verify: False
+    update_interval: 60
+
+
+wallets:
+  from_key: ${PRIVATE_KEY}
+
 
 # enable output of development artifacts to load with react
 dev_deployment_artifacts: true

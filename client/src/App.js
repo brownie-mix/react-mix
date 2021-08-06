@@ -48,13 +48,23 @@ class App extends Component {
     }
 
     loadInitialContracts = async () => {
-        if (this.state.chainid <= 42) {
+        // <=42 to exclude Kovan, <42 to include kovan
+        if (this.state.chainid < 42) {
             // Wrong Network!
             return
         }
-
-        const vyperStorage = await this.loadContract("dev", "VyperStorage")
-        const solidityStorage = await this.loadContract("dev", "SolidityStorage")
+        console.log(this.state.chainid)
+        
+        var _chainID = 0;
+        if (this.state.chainid === 42){
+            _chainID = 42;
+        }
+        if (this.state.chainid === 1337){
+            _chainID = "dev"
+        }
+        console.log(_chainID)
+        const vyperStorage = await this.loadContract(_chainID,"VyperStorage")
+        const solidityStorage = await this.loadContract(_chainID,"SolidityStorage")
 
         if (!vyperStorage || !solidityStorage) {
             return
@@ -139,7 +149,8 @@ class App extends Component {
             return <div>Loading Web3, accounts, and contracts...</div>
         }
 
-        if (isNaN(chainid) || chainid <= 42) {
+        // <=42 to exclude Kovan, <42 to include Kovan
+        if (isNaN(chainid) || chainid < 42) {
             return <div>Wrong Network! Switch to your local RPC "Localhost: 8545" in your Web3 provider (e.g. Metamask)</div>
         }
 
