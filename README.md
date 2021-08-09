@@ -15,19 +15,27 @@ This mix comes with everything you need to start using [React](https://reactjs.o
 3. Install the React client dependencies.
 
     ```bash
-    cd client
+    cd ./client
     yarn install
+    ```
+    or 
+
+    ```bash
+    cd ./client
+    npm install 
     ```
 
 4. If you want to be able to deploy to testnets, do the following.
 
     Set your WEB3_INFURA_PROJECT_ID, and PRIVATE_KEY environment variables.
 
-    You can get a WEB3_INFURA_PROJECT_ID by getting a free trial of Infura. At the moment, it does need to be infura with brownie. If you get lost, you can follow this guide to getting a project key. You can find your PRIVATE_KEY from your ethereum wallet like metamask.
+    You can get a WEB3_INFURA_PROJECT_ID by getting a free trial of Infura. At the moment, it does need to be infura with brownie. If you get lost, follow the instructions at https://ethereumico.io/knowledge-base/infura-api-key-guide/. You can find your PRIVATE_KEY from your ethereum wallet like metamask.
 
-    You'll also need testnet ETH and LINK. You can get LINK and ETH into your wallet by using the faucets located here. If you're new to this, watch this video.. Look at the rinkeby and kovan sections for those specific testnet faucets.
+    You'll also need testnet ETH. You can get ETH into your wallet by using the faucet for the appropriate
+    testnet. For Kovan, a faucet is available at https://linkfaucet.protofire.io/kovan.
 
-    You can add your environment variables to a .env file. You can use the .env.exmple as a template, just fill in the values and rename it to '.env'. Then, uncomment the line # dotenv: .env in brownie-config.yaml
+    You can add your environment variables to a .env file. You can use the .env_example in this repo 
+    as a template, just fill in the values and rename it to '.env'. 
 
     Here is what your .env should look like:
 
@@ -39,7 +47,7 @@ This mix comes with everything you need to start using [React](https://reactjs.o
 5. Create brownie account(s) following instructions here:
        https://eth-brownie.readthedocs.io/en/stable/account-management.html
 
-6. Import the browni account to MetaMask using their private key(s)
+6. Import the brownie account to MetaMask using their private key(s)
 
 
 
@@ -141,9 +149,6 @@ For contracts deployed on a live network, the deployment information is stored p
 
 * Delete or rename the contract file or
 * Manually remove the `client/src/artifacts/` directory
-
-NB: to connect the react app to the Kovan testnet, also change lines 51 and 142 in App.js from chainID <=42
-to chainID < 42. This is required because Kovan's chainID is 42. The original <= option could be useful as a failsafe against accidentally deploying to a live network.
 
 
 ## Resources
