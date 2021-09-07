@@ -108,7 +108,7 @@ execute two contract functions - a public view "getter" and a "setter" that upda
 
 5. Interact with the smart contracts using the web interface or via the Brownie console.
 
-<img src="./assets/screen1.jpg" width=1500>
+<img src="assets/screen1.png" width=1500>
 
 To connect Metamask to the app, click "connect wallet". To view simple diagnostics open the browser inspector - the account, network, chainID etc
 are printed to the console there.
@@ -117,7 +117,7 @@ Grab the value currently stored in the contract by clicking "get value from cont
 
 Setting a new value updates the state of the blockchain and therefore costs gas. Type a new value in the box and click "Set New Value". Metamask will pop up and ask you to confirm the transaction. You will only be able to execute this function if you have sufficient ETH to cover the gas.
 
-<img src="./assets/screen2.jpg" width=1500>
+<img src="assets/screen2.png" width=1500>
 
 Now click "get value from contract" again to retrieve the updated value.
 
