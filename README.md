@@ -1,6 +1,8 @@
 # Brownie React Mix
 
 This mix comes with everything you need to start using [React](https://reactjs.org/) with a Brownie project.
+The react template is a very basic, minimum viable "functional component" style static-page that allows the user to 
+execute two contract functions - a public view "getter" and a "setter" that updates the state of the blockchain.
 
 ## Installation
 
@@ -13,12 +15,6 @@ This mix comes with everything you need to start using [React](https://reactjs.o
     ```
 
 3. Install the React client dependencies.
-
-    ```bash
-    cd ./client
-    yarn install
-    ```
-    or 
 
     ```bash
     cd ./client
@@ -53,7 +49,7 @@ This mix comes with everything you need to start using [React](https://reactjs.o
 
 ## Usage
 
-1. Open the Brownie console. Starting the console launches a fresh [Ganache](https://www.trufflesuite.com/ganache) instance in the background.
+1. Open the Brownie console. Starting the console without a --network flag launches a fresh [Ganache](https://www.trufflesuite.com/ganache) instance in the background.
 
     ```bash
     $ brownie console
@@ -64,7 +60,7 @@ This mix comes with everything you need to start using [React](https://reactjs.o
     Brownie environment is ready.
     ```
 
-    Alternatively, to run on Kovan, set the network flag to kovan
+    Alternatively, to run on a testnet, set the network flag to e.g. kovan
 
     ```bash
     $ brownie console --network kovan
@@ -100,22 +96,30 @@ This mix comes with everything you need to start using [React](https://reactjs.o
     npm install
     npm audit fix
     ```
+    if all dependencies are installed start the app using
 
-4. Connect Metamask to the local Ganache network. In the upper right corner, click the network dropdown menu. Select `Localhost 8545`, or `Kovan test network`:
+    ```bash
+    npm run start
+    ```
+
+4. Connect Metamask to the local Ganache network or testnet. To do this open MetaMask then in the upper right corner, click the network dropdown menu. Select `Localhost 8545`, or `Kovan test network`:
 
 
 
 5. Interact with the smart contracts using the web interface or via the Brownie console.
 
-    ```python
-    # get the newest vyper storage contract
-    >>> vyper_storage = VyperStorage[-1]
+<img src="./assets/screen1.jpg" width=1500>
 
-    # the default sender of the transaction is the contract creator
-    >>> vyper_storage.set(1337)
-    ```
+To connect Metamask to the app, click "connect wallet". To view simple diagnostics open the browser inspector - the account, network, chainID etc
+are printed to the console there.
 
-    Any changes to the contracts from the console should show on the website after a refresh, and vice versa.
+Grab the value currently stored in the contract by clicking "get value from contract". 
+
+Setting a new value updates the state of the blockchain and therefore costs gas. Type a new value in the box and click "Set New Value". Metamask will pop up and ask you to confirm the transaction. You will only be able to execute this function if you have sufficient ETH to cover the gas.
+
+<img src="./assets/screen2.jpg" width=1500>
+
+Now click "get value from contract" again to retrieve the updated value.
 
 ## Ending a Session
 
@@ -123,32 +127,6 @@ When you close the Brownie console, the Ganache instance also terminates and the
 
 To retain your deployment artifacts (and their functionality) you can launch Ganache yourself prior to launching Brownie. Brownie automatically attaches to the ganache instance where you can deploy the contracts. After closing Brownie, the chain and deployment artifacts will persist.
 
-## Further Possibilities
-
-### Testing
-
-To run the test suite:
-
-```bash
-brownie test
-```
-
-### Deploying to a Live Network
-
-To deploy your contracts to the mainnet or one of the test nets, first modify [`scripts/deploy.py`](`scripts/deploy.py`) to [use a funded account](https://eth-brownie.readthedocs.io/en/stable/account-management.html).
-
-Then:
-
-```bash
-brownie run deploy --network kovan
-```
-
-Replace `kovan` with the name of the network you wish you use. You may also wish to adjust Brownie's [network settings](https://eth-brownie.readthedocs.io/en/stable/network-management.html).
-
-For contracts deployed on a live network, the deployment information is stored permanently unless you:
-
-* Delete or rename the contract file or
-* Manually remove the `client/src/artifacts/` directory
 
 
 ## Resources

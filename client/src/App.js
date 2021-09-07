@@ -1,217 +1,138 @@
-import React, {Component} from "react"
-import './App.css'
-import {getWeb3} from "./getWeb3"
+import React, {useState} from 'react';
+import "./App.css";
+import Web3 from 'web3'
+import background from "./logo.svg";
+import SolidityStorage from './artifacts/contracts/SolidityStorage.json';
 import map from "./artifacts/deployments/map.json"
-import {getEthereum} from "./getEthereum"
 
-class App extends Component {
 
-    state = {
-        web3: null,
-        accounts: null,
-        chainid: null,
-        vyperStorage: null,
-        vyperValue: 0,
-        vyperInput: 0,
-        solidityStorage: null,
-        solidityValue: 0,
-        solidityInput: 0,
+// uses functional component syntax
+function App(){
+
+  // web3 is whatever is injected by metamask, else localhost
+  // add deployed address for Solidity Storage contract
+  const web3 = new Web3(Web3.givenProvider || "http://localhost:8545")
+  // define vars and functions to update them, associated to react state
+  
+  const [account, setOwnerAccount] = useState()
+  const [currentSolidityValue, getSolidityValue] = useState()
+  const [newSolidityValue, setNewSolidityValue] = useState()
+  const [chainID, setChainID] = useState()
+  const [network, setNetwork] = useState()
+  const [contractAddress, setContractAddress] = useState()
+  const [contract, setContract] = useState()
+  var connected = false;
+
+  async function loadBlockChain(){
+    
+    const chain = await web3.eth.getChainId()
+    const net = await web3.eth.net.getNetworkType()
+    const accounts = await web3.eth.getAccounts()
+    const acc = accounts[0]
+
+    setNetwork(net)
+    setChainID(chain)
+    setOwnerAccount(acc)
+
+    console.log(chain)
+    var address = ''
+
+    if (chain =='1337'){
+      address = map["dev"]['SolidityStorage'][0]
+    }
+    else if(chain == '42'){
+      address = map["kovan"]['SolidityStorage'][0]
+    }
+    else if(chain=='3'){
+      address = map["ropsten"]['SolidityStorage'][0]
+    }
+    else if(chain=='4'){
+       address = map["rinkeby"]['SolidityStorage'][0]
+    }
+    else{
+      throw 'Please connect to a valid testnet'
     }
 
-    componentDidMount = async () => {
+    setContractAddress(address)
+    const _contract = new web3.eth.Contract(SolidityStorage.abi, address, account)
 
-        // Get network provider and web3 instance.
-        const web3 = await getWeb3()
+    setContract(_contract)
+    console.log(address)
+    console.log(_contract)
+    console.log(chain)
+    console.log("contract successfully loaded")
+  }
 
-        // Try and enable accounts (connect metamask)
-        try {
-            const ethereum = await getEthereum()
-            ethereum.enable()
-        } catch (e) {
-            console.log(`Could not enable accounts. Interaction with contracts not available.
-            Use a modern browser with a Web3 plugin to fix this issue.`)
-            console.log(e)
-        }
+   function checkVals(){
+     console.log(chainID)
+     console.log(contractAddress)
+     console.log(contract)
+   }
 
-        // Use web3 to get the user's accounts
-        const accounts = await web3.eth.getAccounts()
+  // two async functions that interact with the deployed contract:
+  // GETTER
+  async function getValue(){
 
-        // Get the current chain id
-        const chainid = parseInt(await web3.eth.getChainId())
+    let SolidityValue = await contract.methods.get().call()
+    getSolidityValue(SolidityValue)
+  }
 
-        this.setState({
-            web3,
-            accounts,
-            chainid
-        }, await this.loadInitialContracts)
 
-    }
+  //SETTER
+  async function setValue(){
+    // instantiate contract
 
-    loadInitialContracts = async () => {
-        // <=42 to exclude Kovan, <42 to include kovan
-        if (this.state.chainid < 42) {
-            // Wrong Network!
-            return
-        }
-        console.log(this.state.chainid)
-        
-        var _chainID = 0;
-        if (this.state.chainid === 42){
-            _chainID = 42;
-        }
-        if (this.state.chainid === 1337){
-            _chainID = "dev"
-        }
-        console.log(_chainID)
-        const vyperStorage = await this.loadContract(_chainID,"VyperStorage")
-        const solidityStorage = await this.loadContract(_chainID,"SolidityStorage")
+    // async call to contract's set() function
+    await contract.methods.set(newSolidityValue).send({from: account})//.then(console.log("successfully set value"))
 
-        if (!vyperStorage || !solidityStorage) {
-            return
-        }
+  }
 
-        const vyperValue = await vyperStorage.methods.get().call()
-        const solidityValue = await solidityStorage.methods.get().call()
 
-        this.setState({
-            vyperStorage,
-            vyperValue,
-            solidityStorage,
-            solidityValue,
-        })
-    }
+// Now define how to render in the browser
+return (
+  
+  <div 
+  className="App" 
+  style={{ backgroundImage: 'url(' + background + ')',
+  backgroundPosition: 'bottom',
+  backgroundSize: 'cover',
+  backgroundRepeat: 'no-repeat',
+  width: '100vw',
+  height: '70vh',
+  }}>
+  
+  <h1>BROWNIE-REACT-MIX </h1>
+  <h2>React front-end template</h2>
 
-    loadContract = async (chain, contractName) => {
-        // Load a deployed contract instance into a web3 contract object
-        const {web3} = this.state
+  <br></br>
+  {<button onClick={loadBlockChain}>Connect Wallet</button>}
+  <br></br>
+  <br></br>
+  <br></br>
+  {<button onClick={getValue}>Get Value From Contract</button>}
+  <br></br>
+  <br></br>
 
-        // Get the address of the most recent deployment from the deployment map
-        let address
-        try {
-            address = map[chain][contractName][0]
-        } catch (e) {
-            console.log(`Couldn't find any deployed contract "${contractName}" on the chain "${chain}".`)
-            return undefined
-        }
+  <input 
+      type="text"
+      placeholder="Enter new value here"
+      onChange={e => setNewSolidityValue(e.target.value)} />
 
-        // Load the artifact with the specified address
-        let contractArtifact
-        try {
-            contractArtifact = await import(`./artifacts/deployments/${chain}/${address}.json`)
-        } catch (e) {
-            console.log(`Failed to load contract artifact "./artifacts/deployments/${chain}/${address}.json"`)
-            return undefined
-        }
 
-        return new web3.eth.Contract(contractArtifact.abi, address)
-    }
+  {<button onClick={setValue}>Set New Value </button>}
 
-    changeVyper = async (e) => {
-        const {accounts, vyperStorage, vyperInput} = this.state
-        e.preventDefault()
-        const value = parseInt(vyperInput)
-        if (isNaN(value)) {
-            alert("invalid value")
-            return
-        }
-        await vyperStorage.methods.set(value).send({from: accounts[0]})
-            .on('receipt', async () => {
-                this.setState({
-                    vyperValue: await vyperStorage.methods.get().call()
-                })
-            })
-    }
+  <p>The stored value is: </p>
+  {currentSolidityValue}
 
-    changeSolidity = async (e) => {
-        const {accounts, solidityStorage, solidityInput} = this.state
-        e.preventDefault()
-        const value = parseInt(solidityInput)
-        if (isNaN(value)) {
-            alert("invalid value")
-            return
-        }
-        await solidityStorage.methods.set(value).send({from: accounts[0]})
-            .on('receipt', async () => {
-                this.setState({
-                    solidityValue: await solidityStorage.methods.get().call()
-                })
-            })
-    }
 
-    render() {
-        const {
-            web3, accounts, chainid,
-            vyperStorage, vyperValue, vyperInput,
-            solidityStorage, solidityValue, solidityInput
-        } = this.state
 
-        if (!web3) {
-            return <div>Loading Web3, accounts, and contracts...</div>
-        }
+  <br></br>
+  <br></br>
 
-        // <=42 to exclude Kovan, <42 to include Kovan
-        if (isNaN(chainid) || chainid < 42) {
-            return <div>Wrong Network! Switch to your local RPC "Localhost: 8545" in your Web3 provider (e.g. Metamask)</div>
-        }
+  </div>
 
-        if (!vyperStorage || !solidityStorage) {
-            return <div>Could not find a deployed contract. Check console for details.</div>
-        }
-
-        const isAccountsUnlocked = accounts ? accounts.length > 0 : false
-
-        return (<div className="App">
-            <h1>Your Brownie Mix is installed and ready.</h1>
-            <p>
-                If your contracts compiled and deployed successfully, you can see the current
-                storage values below.
-            </p>
-            {
-                !isAccountsUnlocked ?
-                    <p><strong>Connect with Metamask and refresh the page to
-                        be able to edit the storage fields.</strong>
-                    </p>
-                    : null
-            }
-            <h2>Vyper Storage Contract</h2>
-
-            <div>The stored value is: {vyperValue}</div>
-            <br/>
-            <form onSubmit={(e) => this.changeVyper(e)}>
-                <div>
-                    <label>Change the value to: </label>
-                    <br/>
-                    <input
-                        name="vyperInput"
-                        type="text"
-                        value={vyperInput}
-                        onChange={(e) => this.setState({vyperInput: e.target.value})}
-                    />
-                    <br/>
-                    <button type="submit" disabled={!isAccountsUnlocked}>Submit</button>
-                </div>
-            </form>
-
-            <h2>Solidity Storage Contract</h2>
-            <div>The stored value is: {solidityValue}</div>
-            <br/>
-            <form onSubmit={(e) => this.changeSolidity(e)}>
-                <div>
-                    <label>Change the value to: </label>
-                    <br/>
-                    <input
-                        name="solidityInput"
-                        type="text"
-                        value={solidityInput}
-                        onChange={(e) => this.setState({solidityInput: e.target.value})}
-                    />
-                    <br/>
-                    <button type="submit" disabled={!isAccountsUnlocked}>Submit</button>
-
-                </div>
-            </form>
-        </div>)
-    }
+);
 }
+
 
 export default App
