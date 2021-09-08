@@ -94,18 +94,19 @@ return (
   <div 
   className="App" 
   style={{ backgroundImage: 'url(' + background + ')',
-  backgroundPosition: 'bottom',
+  backgroundPosition: '',
   backgroundSize: 'cover',
   backgroundRepeat: 'no-repeat',
   width: '100vw',
-  height: '70vh',
+  height: '100vh',
   }}>
   
   <h1>BROWNIE-REACT-MIX </h1>
   <h2>React front-end template</h2>
 
   <br></br>
-  {<button onClick={loadBlockChain}>Connect Wallet</button>}
+  
+  {<button onClick={loadBlockChain} > Connect Wallet</button>}
   <br></br>
   <br></br>
   <br></br>
