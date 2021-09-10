@@ -41,13 +41,13 @@ function App(){
       address = map["dev"]['SolidityStorage'][0]
     }
     else if(chain == '42'){
-      address = map["kovan"]['SolidityStorage'][0]
+      address = map[42]['SolidityStorage'][0]
     }
     else if(chain=='3'){
-      address = map["ropsten"]['SolidityStorage'][0]
+      address = map[3]['SolidityStorage'][0]
     }
     else if(chain=='4'){
-       address = map["rinkeby"]['SolidityStorage'][0]
+       address = map[4]['SolidityStorage'][0]
     }
     else{
       throw 'Please connect to a valid testnet'
