@@ -2,7 +2,8 @@
 
 This mix comes with everything you need to start using [React](https://reactjs.org/) with a Brownie project.
 The react template is a very basic, minimum viable "functional component" style static-page that allows the user to 
-execute two contract functions - a public view "getter" and a "setter" that updates the state of the blockchain.
+execute two contract functions - a public view "getter" and a "setter" that updates the state of the blockchain. 
+There are two contracts loaded, one written in Solidity and one written in Vyper. They have identical functionality.
 
 ## Installation
 
@@ -105,21 +106,25 @@ execute two contract functions - a public view "getter" and a "setter" that upda
 4. Connect Metamask to the local Ganache network or testnet. To do this open MetaMask then in the upper right corner, click the network dropdown menu. Select `Localhost 8545`, or `Kovan test network`:
 
 
-
 5. Interact with the smart contracts using the web interface or via the Brownie console.
 
 <img src="assets/screen1.png" width=1500>
 
-To connect Metamask to the app, click "connect wallet". To view simple diagnostics open the browser inspector - the account, network, chainID etc
-are printed to the console there.
+First open MetaMask and navigate to the account that should be used to interact with the app. To connect Metamask to the app, click "connect wallet". You will see th words "wallet connected" appear in green if the cnnection was successful. To view simple diagnostics open the browser inspector - the account, network, chainID etc are printed to the console there.
 
-Grab the value currently stored in the contract by clicking "get value from contract". 
+<img src="assets/screen2.png" width=750>
 
-Setting a new value updates the state of the blockchain and therefore costs gas. Type a new value in the box and click "Set New Value". Metamask will pop up and ask you to confirm the transaction. You will only be able to execute this function if you have sufficient ETH to cover the gas.
+Grab the value currently stored in the contract by clicking "get value from contract". These values will appear in the browser.
 
-<img src="assets/screen2.png" width=1500>
+<img src="assets/screen3.png" width=750>
+
+Setting a new value updates the state of the blockchain and therefore costs gas. Type a new value in the box and click "Set New Value". Metamask will pop up and ask you to confirm the transaction. You will only be able to execute this function if you have sufficient ETH to cover the gas. Sometmes MetaMask can get confused when interacting with local private blockchains because the transaction nonces fall out of order. If this happens, just reset the account in MetaMask by going to settings > advanced > reset account. This will reset the nonce and fix the problem.
+
+<img src="assets/screen4.png" width=1500>
 
 Now click "get value from contract" again to retrieve the updated value.
+
+<img src="assets/screen5.png" width=750>
 
 ## Ending a Session
 

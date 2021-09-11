@@ -3,6 +3,7 @@ import "./App.css";
 import Web3 from 'web3'
 import background from "./logo.svg";
 import SolidityStorage from './artifacts/contracts/SolidityStorage.json';
+import VyperStorage from './artifacts/contracts/VyperStorage.json';
 import map from "./artifacts/deployments/map.json"
 
 
@@ -12,79 +13,98 @@ function App(){
   // web3 is whatever is injected by metamask, else localhost
   // add deployed address for Solidity Storage contract
   const web3 = new Web3(Web3.givenProvider || "http://localhost:8545")
-  // define vars and functions to update them, associated to react state
-  
-  const [account, setOwnerAccount] = useState()
-  const [currentSolidityValue, getSolidityValue] = useState()
-  const [newSolidityValue, setNewSolidityValue] = useState()
-  const [chainID, setChainID] = useState()
-  const [network, setNetwork] = useState()
-  const [contractAddress, setContractAddress] = useState()
-  const [contract, setContract] = useState()
-  var connected = false;
 
+  // State variables (using state hook syntax)
+  const [account, setAccount] = useState()
+  const [SolidityValue, setSolidityValue] = useState()
+  const [VyperValue, setVyperValue] = useState()
+  const [SolidityValueUpdated, UpdateSolidityValue] = useState()
+  const [VyperValueUpdated, UpdateVyperValue] = useState()
+  const [SolidityContract, setSolidityContract] = useState()
+  const [VyperContract, setVyperContract] = useState()
+  const [connected, connect] = useState()
+
+
+  // function to load blockchain data including
+  // getting account, loading contracts etc
   async function loadBlockChain(){
     
-    const chain = await web3.eth.getChainId()
-    const net = await web3.eth.net.getNetworkType()
+    const chainID = await web3.eth.getChainId()
     const accounts = await web3.eth.getAccounts()
-    const acc = accounts[0]
+    const _account = accounts[0]
+    setAccount(_account)
 
-    setNetwork(net)
-    setChainID(chain)
-    setOwnerAccount(acc)
+    // declare vars for the contract addresses
+    var SolidityAddress = ''
+    var VyperAddress =''
 
-    console.log(chain)
-    var address = ''
-
-    if (chain =='1337'){
-      address = map["dev"]['SolidityStorage'][0]
+    // load contract from different path depending on
+    // which network we are connected to
+    if (chainID =='1337'){
+      SolidityAddress = map["dev"]['SolidityStorage'][0]
+      VyperAddress = map["dev"]['VyperStorage'][0]
     }
-    else if(chain == '42'){
-      address = map[42]['SolidityStorage'][0]
+    else if(chainID == '42'){
+      SolidityAddress = map[42]['SolidityStorage'][0]
+      VyperAddress = map["dev"]['VyperStorage'][0]
     }
-    else if(chain=='3'){
-      address = map[3]['SolidityStorage'][0]
+    else if(chainID =='3'){
+      SolidityAddress = map[3]['SolidityStorage'][0]
+      VyperAddress = map["dev"]['VyperStorage'][0]
     }
-    else if(chain=='4'){
-       address = map[4]['SolidityStorage'][0]
+    else if(chainID =='4'){
+      SolidityAddress = map[4]['SolidityStorage'][0]
+      VyperAddress = map["dev"]['VyperStorage'][0]
     }
     else{
-      throw 'Please connect to a valid testnet'
+      throw(console.error('Please connect to a valid testnet'))
     }
 
-    setContractAddress(address)
-    const _contract = new web3.eth.Contract(SolidityStorage.abi, address, account)
+    // then create a contract obj from contract address, 
+    // then update state with the contract obj
+    const _SolidityContract = new web3.eth.Contract(SolidityStorage.abi, SolidityAddress, account)
+    setSolidityContract(_SolidityContract)
 
-    setContract(_contract)
-    console.log(address)
-    console.log(_contract)
-    console.log(chain)
+    // repeat for the Vyper contract
+    const _VyperContract = new web3.eth.Contract(VyperStorage.abi, VyperAddress, account)
+    setVyperContract(_VyperContract)
+
+    // set "connected" state var to true
+    // this allows us to show connection status in browser
+    connect(true)
+
+    //some helful console.log statements
+    // open the inspector in the browser to see these
+    console.log("Solidity contract address: ", SolidityAddress)
+    console.log("Vyper contract address: ", VyperAddress)
+    console.log(SolidityContract)
+    console.log(chainID)
     console.log("contract successfully loaded")
+
   }
 
-   function checkVals(){
-     console.log(chainID)
-     console.log(contractAddress)
-     console.log(contract)
-   }
-
-  // two async functions that interact with the deployed contract:
-  // GETTER
-  async function getValue(){
-
-    let SolidityValue = await contract.methods.get().call()
-    getSolidityValue(SolidityValue)
+  // SOLIDITY GETTER
+  async function getSolidityValueFromContract(){
+    let _SolidityValue = await SolidityContract.methods.get().call()
+    setSolidityValue(_SolidityValue)
   }
 
+    // VYPER GETTER
+    async function getVyperValueFromContract(){
+      let _VyperValue = await VyperContract.methods.get().call()
+      setVyperValue(_VyperValue)
+    }
 
-  //SETTER
-  async function setValue(){
-    // instantiate contract
-
+  // SOLIDITY SETTER
+  async function setSolidityValueInContract(){
     // async call to contract's set() function
-    await contract.methods.set(newSolidityValue).send({from: account})//.then(console.log("successfully set value"))
+    await SolidityContract.methods.set(SolidityValueUpdated).send({from: account})
+  }
 
+  // VYPER SETTER
+  async function setVyperValueInContract(){
+    // async call to contract's set() function
+    await VyperContract.methods.set(VyperValueUpdated).send({from: account})
   }
 
 
@@ -109,23 +129,41 @@ return (
   {<button onClick={loadBlockChain} > Connect Wallet</button>}
   <br></br>
   <br></br>
+  <li style={{ color: connected ? 'green' : 'white' }}>
+      {<p>wallet connected</p>}
+    </li>
   <br></br>
-  {<button onClick={getValue}>Get Value From Contract</button>}
+  {<button onClick={getSolidityValueFromContract}>Get Value From Solidity Contract</button>}
   <br></br>
   <br></br>
-
+  {<button onClick={getVyperValueFromContract}>Get Value From Vyper Contract</button>}
+  <br></br>
+  <br></br>
   <input 
       type="text"
-      placeholder="Enter new value here"
-      onChange={e => setNewSolidityValue(e.target.value)} />
+      placeholder="Enter new Solidity value here"
+      onChange={e => UpdateSolidityValue(e.target.value)} />
 
+  {<button onClick={setSolidityValueInContract}>Set New Solidity Value </button>}
 
-  {<button onClick={setValue}>Set New Value </button>}
+  <br></br>
+  <br></br>
+  
+  <input 
+      type="text"
+      placeholder="Enter new Vyper value here"
+      onChange={e => UpdateVyperValue(e.target.value)} />
 
-  <p>The stored value is: </p>
-  {currentSolidityValue}
-
-
+  {<button onClick={setVyperValueInContract}>Set New Vyper Value </button>}  
+  
+  <p>The stored value in the Solidity contract: </p>
+    {SolidityValue}
+  
+  <br></br>
+  <br></br>
+  
+  <p>The stored value in the Vyper contract: </p>
+  {VyperValue}
 
   <br></br>
   <br></br>
@@ -134,6 +172,5 @@ return (
 
 );
 }
-
 
 export default App
