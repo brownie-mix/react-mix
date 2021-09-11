@@ -112,11 +112,11 @@ There are two contracts loaded, one written in Solidity and one written in Vyper
 
 First open MetaMask and navigate to the account that should be used to interact with the app. To connect Metamask to the app, click "connect wallet". You will see th words "wallet connected" appear in green if the cnnection was successful. To view simple diagnostics open the browser inspector - the account, network, chainID etc are printed to the console there.
 
-<img src="assets/screen2.png" width=750>
+<img src="assets/screen2.png" width=500>
 
 Grab the value currently stored in the contract by clicking "get value from contract". These values will appear in the browser.
 
-<img src="assets/screen3.png" width=750>
+<img src="assets/screen3.png" width=500>
 
 Setting a new value updates the state of the blockchain and therefore costs gas. Type a new value in the box and click "Set New Value". Metamask will pop up and ask you to confirm the transaction. You will only be able to execute this function if you have sufficient ETH to cover the gas. Sometmes MetaMask can get confused when interacting with local private blockchains because the transaction nonces fall out of order. If this happens, just reset the account in MetaMask by going to settings > advanced > reset account. This will reset the nonce and fix the problem.
 
@@ -124,7 +124,7 @@ Setting a new value updates the state of the blockchain and therefore costs gas.
 
 Now click "get value from contract" again to retrieve the updated value.
 
-<img src="assets/screen5.png" width=750>
+<img src="assets/screen5.png" width=500>
 
 ## Ending a Session
 
