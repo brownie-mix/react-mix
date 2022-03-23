@@ -157,7 +157,7 @@ This mix provides a bare-bones implementation of [Create React App](https://crea
 
 To get started with React and building a front-end for your dApps:
 
-* [Rimble](https://rimble.consensys.design/) is an open-source library of React components and guides to help you make dApps. Along with components they provide guides and tutorials to help you get started.
+* [Rimble](https://github.com/consensysmesh/rimble-ui#readme) is an open-source library of React components and guides to help you make dApps. Along with components they provide guides and tutorials to help you get started.
 * For more in-depth information, read the [Create React App documentation](https://create-react-app.dev/docs/getting-started)
 
 
